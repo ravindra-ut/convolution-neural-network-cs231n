@@ -1,0 +1,66 @@
+Challenges:
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Viewpoint variation. A single instance of an object can be oriented in many ways with respect to the camera.
+Scale variation. Visual classes often exhibit variation in their size (size in the real world, not only in terms of their extent in the image).
+Deformation. Many objects of interest are not rigid bodies and can be deformed in extreme ways.
+Occlusion. The objects of interest can be occluded. Sometimes only a small portion of an object (as little as few pixels) could be visible.
+Illumination conditions. The effects of illumination are drastic on the pixel level.
+Background clutter. The objects of interest may blend into their environment, making them hard to identify.
+Intra-class variation. The classes of interest can often be relatively broad, such as chair. There are many different types of these objects, each with their own appearance.
+-------------------------------------------------------------------------------------------------------------------------------------------
+Data driven approach
+-------------------------------------------------------------------------------------------------------------------------------------------
+We’re going to provide the computer with many examples of each class and then develop learning algorithms
+that look at these examples and learn about the visual appearance of each class. This approach is referred to as a data-driven approach.
+-------------------------------------------------------------------------------------------------------------------------------------------
+Image classifcation pipeline: Input -> Learning -> Evaluation
+-------------------------------------------------------------------------------------------------------------------------------------------
+Nearest Neighbour Classifier
+-------------------------------------------------------------------------------------------------------------------------------------------
+Manhattan distance = absolute difference between each image pixel
+
+d1(I1,I2)= ∑p|Ip1−Ip2|
+
+Euclidean distance
+d2(I1,I2)= sqrt(∑p(Ip1−Ip2)2)
+
+Both L1/L2 distance perform poorly on CIFAR distance with nearest image.
+
+Applying K-Nearest Neighbour would give more accuracy.
+Do cross-validation, choose K whichever perfroms best on validation set.
+
+Pro's and Cons
+1) Easy to train, but test time is linear.
+2) There are algorithms like Approximate nearest neighbour to speed up KNN, t-SNE distributed stochastic nearest embedding does dimensionality reduction.
+These algorithms allow one to trade off the correctness of the nearest neighbor retrieval with its space/time complexity during retrieval,
+and usually rely on a pre-processing/indexing stage that involves building a kdtree, or running the k-means algorithm.
+
+But k-NN is bad choice for image which is high dimensional object.
+
+Summary: Applying kNN in practice
+--------------------------------------------------------------------------------------------------------------------------------------------------
+If you wish to apply kNN in practice (hopefully not on images, or perhaps as only a baseline) proceed as follows:
+
+Preprocess your data: 
+Normalize the features in your data (e.g. one pixel in images) to have zero mean and unit variance.
+Pixels in images are usually homogeneous and do not exhibit widely different distributions, alleviating the need for data normalization.
+
+If your data is very high-dimensional, consider using a dimensionality reduction technique such as PCA or even Random Projections.
+
+Split your training data randomly into train/val splits. As a rule of thumb, between 70-90% of your data usually goes to the train split.
+This setting depends on how many hyperparameters you have and how much of an influence you expect them to have.
+If there are many hyperparameters to estimate, you should err on the side of having larger validation set to estimate them effectively.
+If you are concerned about the size of your validation data, it is best to split the training data into folds and perform cross-validation.
+If you can afford the computational budget it is always safer to go with cross-validation (the more folds the better, but more expensive).
+
+Train and evaluate the kNN classifier on the validation data (for all folds, if doing cross-validation) for many choices of k (e.g. the more the better)
+ and across different distance types (L1 and L2 are good candidates)
+
+If your kNN classifier is running too long, consider using an Approximate Nearest Neighbor library (e.g. FLANN) to accelerate the retrieval
+(at cost of some accuracy).
+
+Take note of the hyperparameters that gave the best results. There is a question of whether you should use the full training set with the best hyperparameters,
+since the optimal hyperparameters might change if you were to fold the validation data into your training set (since the size of the data would be larger).
+In practice it is cleaner to not use the validation data in the final classifier and consider it to be burned on estimating the hyperparameters.
+Evaluate the best model on the test set. Report the test set accuracy and declare the result to be the performance of the kNN classifier on your data.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
